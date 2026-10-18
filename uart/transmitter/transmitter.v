@@ -3,9 +3,9 @@ module transmitter
     parameter N = 8
 )
 (
-    input wire clk, tick, signal,
-    input reg [N-1:0] tx,
-    output reg pin 
+    input wire clk, signal,
+    input wire [N-1:0] tx,
+    output reg pin  = 1'b1
 );
 
 localparam idle = 2'd0;
@@ -19,8 +19,10 @@ counter_tx baud
     .tick(tick)
 );
 
-reg state = idle;
-reg state_next;
+wire tick;
+
+reg [1:0] state = idle;
+reg [1:0] state_next;
 
 reg [2:0] d = 0;
 reg [2:0] d_next;
@@ -36,14 +38,13 @@ end
 always @(*) begin
     state_next = state;
     pin_next = pin;
-    d <= d_next;
+    d_next = d;
 
     case (state)
         idle : begin
             if (signal == 1) begin
                 state_next = start;
-            end else begin
-                pin_next = 1'b1;
+                d_next = 1'b0;
             end
         end 
         start : begin
@@ -58,7 +59,7 @@ always @(*) begin
                 if (d == N-1) begin
                     state_next = stop;
                 end else begin
-                    d_next = d_next + 1;
+                    d_next = d + 1;
                 end  
             end
         end

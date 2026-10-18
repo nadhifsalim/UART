@@ -4,9 +4,9 @@ module counter_tx
 )
 (
     input wire clk_main,
-    output reg tick
+    output reg tick = 0
 );
-    reg [10:0] counter;
+    reg [10:0] counter = 0;
 
     always @(posedge clk_main) begin
         if (counter == M-1) begin

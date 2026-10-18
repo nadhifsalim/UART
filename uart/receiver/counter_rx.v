@@ -8,9 +8,9 @@ module counter_rx
     output reg tick_16 = 0
 );
     
-    reg [N-1:0] counter;
+    reg [N-1:0] counter = 0;
 
-    always @(posedge clk) begin
+    always @(posedge clk_main) begin
         if (counter == M-1) begin
             counter <=  0;
             tick_16 <= 1'b1;

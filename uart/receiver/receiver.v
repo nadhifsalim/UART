@@ -1,4 +1,4 @@
-module uart 
+module receiver 
 #(
     parameter M = 16,
     DATA = 8
@@ -36,6 +36,14 @@ counter_rx baud
     .tick_16(tick_16)
 );
 
+initial begin
+    state = idle;
+    n = 0;
+    d = 0;
+    data = 8'b00000000;
+    signal = 0;
+end
+
 always @(posedge clk) begin
     state <= state_next;
     d <= d_next;
@@ -72,9 +80,11 @@ always @(*) begin
             if (tick_16 == 1'b1) begin
                 if (n == 15) begin
                     n_next = 0;
-                    data[d] = rx;
+                    data_next[d] = rx;
+
                     if (d == DATA-1) begin
                         n_next = 0;
+                        d_next = 0;
                         state_next = stop;
                     end else begin
                         d_next = d + 1;

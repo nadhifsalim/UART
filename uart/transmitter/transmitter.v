@@ -13,13 +13,13 @@ localparam start = 2'd1;
 localparam transmit = 2'd2;
 localparam stop = 2'd3;
 
+wire tick;
+
 counter_tx baud 
 (
     .clk_main(clk),
     .tick(tick)
 );
-
-wire tick;
 
 reg [1:0] state = idle;
 reg [1:0] state_next;
@@ -44,7 +44,7 @@ always @(*) begin
         idle : begin
             if (signal == 1) begin
                 state_next = start;
-                d_next = 1'b0;
+                d_next = 0;
             end
         end 
         start : begin

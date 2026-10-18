@@ -1,0 +1,29 @@
+# Simulation and waveform outputs
+*.out
+*.vcd
+*.fst
+*.lxt
+*.lxt2
+
+# Synthesis, routing, and bitstreams
+*.bit
+*.bin
+*.json
+*.asc
+*.rpt
+*.log
+*.blif
+
+# Build and generated directories
+build/
+obj_dir/
+sim_build/
+
+# Python / Cocotb simulation caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor and OS generated files
+.vscode/
+.DS_Store

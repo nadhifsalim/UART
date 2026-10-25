@@ -48,7 +48,7 @@ $(BUILD_DIR):
 
 sim:$(RTL_FILES) $(TB_FILES)
 	$(IVERILOG) -g2012 -Wall -s $(notdir $(basename $(TB_FILES))) \
-		-o $(SIM) $(RTL_FILES) counter_rx.v transmitter.v counter_tx.v $(TB_FILES)
+		-o $(SIM) $(RTL_FILES) $(TB_FILES)
 
 run: sim
 	$(VVP) $(SIM)

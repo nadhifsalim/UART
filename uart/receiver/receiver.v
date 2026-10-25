@@ -70,7 +70,11 @@ always @(*) begin
             if (tick_16 == 1'b1) begin
                 if (n == 7) begin
                     n_next = 0;
-                    state_next = receive;
+                    if (rx == 0) begin 
+                        state_next = receive;
+                    end else begin 
+                        state_next = idle;
+                    end
                 end else begin
                    n_next = n + 1; 
                 end

@@ -9,7 +9,7 @@ wire empty;
 wire full;
 wire [7:0] dout;
 
-fifo #( .WIDTH(8), .DEPTH(16)) dut
+fifo #( .WIDTH(8), .DEPTH(32)) dut
 (
     .clk(clk),
     .en_write(en_write),
@@ -32,14 +32,14 @@ initial begin
     rst = 0; #83.33;
 
     en_write = 1;
-    repeat(16) begin
+    repeat(32) begin
         din = din + 1;
         #83.33;
     end    
     en_write = 0; #83.33;
 
     en_read = 1;
-    repeat (16) begin
+    repeat (32) begin
         #83.33;
     end
     en_read = 0;

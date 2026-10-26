@@ -17,8 +17,8 @@ localparam stop = 2'b11;
 reg [3:0] n = 0;
 reg [3:0] n_next;
 
-reg [2:0] counter = 0;
-reg [2:0] counter_next;
+reg [2:0] d = 0;
+reg [2:0] d_next;
 
 reg [1:0] state = idle;
 reg [1:0] state_next;
@@ -35,7 +35,7 @@ counter #(
 ) baud (
     .rst(rst_tick),
     .clk_main(clk),
-    .tick_16(tick_16)
+    .tick(tick_16)
 );
 
 initial begin
@@ -90,7 +90,7 @@ always @(*) begin
                     n_next = 0;
                     din_next[d] = line;
 
-                    if (d == DATA-1) begin
+                    if (d == N-1) begin
                         n_next = 0;
                         d_next = 0;
                         state_next = stop;

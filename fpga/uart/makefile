@@ -1,12 +1,14 @@
-
 PROJECT      ?= uart_top
 
-RTL_FILES    ?= $(PROJECT).v
+# FIX: Added all modules here so Make accurately tracks dependencies
+RTL_FILES    ?= $(PROJECT).v receiver.v transmitter.v counter.v
 TB_FILES     ?= $(PROJECT)_tb.v
 
-DEVICE       ?= hx1k
-PACKAGE      ?= tq144
-PCF          ?= pins.pcf
+# FIX: Changed target to match the iCEsugar's exact hardware
+DEVICE       ?= up5k
+PACKAGE      ?= sg48
+# FIX: Matched the constraint file name we created
+PCF          ?= icesugar.pcf
 FREQ         ?= 12
 
 BUILD_DIR    ?= build
@@ -46,9 +48,10 @@ help:
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-sim:$(RTL_FILES) $(TB_FILES)
+# FIX: Cleaned up hardcoded files. Added "| $(BUILD_DIR)" to ensure the directory exists before Icarus writes to it.
+sim: $(RTL_FILES) $(TB_FILES) | $(BUILD_DIR)
 	$(IVERILOG) -g2012 -Wall -s $(notdir $(basename $(TB_FILES))) \
-		-o $(SIM) $(RTL_FILES) receiver.v transmitter.v counter.v $(TB_FILES)
+		-o $(SIM) $(RTL_FILES) $(TB_FILES)
 
 run: sim
 	$(VVP) $(SIM)
@@ -56,11 +59,9 @@ run: sim
 wave: run
 	$(WAVEGEN) $(VCD) &
 
-
-synth: $(RTL_FILES)
-	$(YOSYS) -p "read_verilog -sv $(RTL_FILES); \
-		hierarchy -check -top $(PROJECT); \
-		synth_ice40 -top $(PROJECT) -json $(JSON)"
+# FIX: Removed the redundant read_verilog script and hardcoded files to fix the multiple-driver/double-read crash.
+synth: $(RTL_FILES) | $(BUILD_DIR)
+	$(YOSYS) -p "synth_ice40 -top $(PROJECT) -json $(JSON)" $(RTL_FILES)
 
 pnr: synth
 	$(NEXTPNR) \

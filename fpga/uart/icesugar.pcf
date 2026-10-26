@@ -1,0 +1,5 @@
+set_io clk 35
+
+set_io line_out 48
+
+set_io line_in 3

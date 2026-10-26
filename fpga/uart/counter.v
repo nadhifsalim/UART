@@ -1,4 +1,4 @@
-module counter_tx 
+module counter 
 #(
     parameter M = 1250
 )
@@ -7,7 +7,7 @@ module counter_tx
     input wire rst,
     output reg tick = 0
 );
-    reg [10:0] counter = 0;
+    reg [$clog2(M)-1:0] counter = 0;
 
     always @(posedge clk_main) begin
         if (rst) begin 

@@ -1,13 +1,12 @@
 module receiver 
 #(
-    parameter M = 16,
-    DATA = 8
+    parameter N = 8
 )
 (
-    input rx, 
+    input line, 
     input clk,
-    output reg signal = 0,
-    output reg [7:0] data 
+    output reg rx_done = 0,
+    output reg [N-1:0] din 
 );
 
 localparam idle = 2'b00;
@@ -18,20 +17,23 @@ localparam stop = 2'b11;
 reg [3:0] n = 0;
 reg [3:0] n_next;
 
-reg [2:0] d = 0;
-reg [2:0] d_next;
+reg [2:0] counter = 0;
+reg [2:0] counter_next;
 
 reg [1:0] state = idle;
 reg [1:0] state_next;
 
-reg signal_next;
+reg rx_done_next;
 
-reg [7:0] data_next;
+reg [N-1:0] din_next;
 
 wire tick_16;
+reg rst_tick = 0;
 
-counter_rx baud
-(
+counter #(
+    .M(78)
+) baud (
+    .rst(rst_tick),
     .clk_main(clk),
     .tick_16(tick_16)
 );
@@ -40,29 +42,31 @@ initial begin
     state = idle;
     n = 0;
     d = 0;
-    data = 8'b00000000;
-    signal = 0;
+    din = 8'b00000000;
+    rx_done = 0;
 end
 
 always @(posedge clk) begin
     state <= state_next;
     d <= d_next;
     n <= n_next;
-    data <= data_next;
-    signal <= signal_next;
+    din <= din_next;
+    rx_done <= rx_done_next;
 end
 
 always @(*) begin
     state_next = state;
     n_next = n;
-    data_next = data;
-    signal_next = 0;
+    din_next = din;
+    rx_done_next = 0;
     d_next = d;
+    rst_tick = 0;
 
     case (state)
         idle : begin
-            if (rx == 0) begin
+            if (line == 0) begin
                 n_next = 0;
+                rst_tick = 1'b1;
                 state_next = start;
             end 
         end
@@ -70,7 +74,7 @@ always @(*) begin
             if (tick_16 == 1'b1) begin
                 if (n == 7) begin
                     n_next = 0;
-                    if (rx == 0) begin 
+                    if (line == 0) begin 
                         state_next = receive;
                     end else begin 
                         state_next = idle;
@@ -84,7 +88,7 @@ always @(*) begin
             if (tick_16 == 1'b1) begin
                 if (n == 15) begin
                     n_next = 0;
-                    data_next[d] = rx;
+                    din_next[d] = line;
 
                     if (d == DATA-1) begin
                         n_next = 0;
@@ -101,8 +105,8 @@ always @(*) begin
         stop: begin
             if (tick_16 == 1'b1) begin
                 if (n == 15) begin
-                    if (rx == 1) begin
-                        signal_next = 1;
+                    if (line == 1) begin
+                        rx_done_next = 1;
                     end
                     state_next = idle;
                     n_next = 0;

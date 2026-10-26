@@ -3,9 +3,9 @@ module transmitter
     parameter N = 8
 )
 (
-    input wire clk, signal,
-    input wire [N-1:0] tx,
-    output reg pin  = 1'b1
+    input wire clk, tx_ready,
+    input wire [N-1:0] dout,
+    output reg line  = 1'b1
 );
 
 localparam idle = 2'd0;
@@ -16,8 +16,9 @@ localparam stop = 2'd3;
 wire tick;
 reg rst_tick;
 
-counter_tx baud 
-(
+counter #(
+    .M(1250)
+) baud (
     .clk_main(clk),
     .tick(tick),
     .rst(rst_tick)
@@ -32,45 +33,45 @@ reg [2:0] d_next;
 reg [7:0] data = 0;
 reg [7:0] data_next;
 
-reg signal_latch = 0;
+reg tx_ready_latch = 0;
 
-reg pin_next;
+reg line_next;
 
 always @(posedge clk) begin
-    pin <= pin_next;
+    line <= line_next;
     state <= state_next;
     d <= d_next;
-    signal_latch <= signal;
+    tx_ready_latch <= tx_ready;
     data <= data_next;
 end
 
 always @(*) begin
     state_next = state;
-    pin_next = pin;
+    line_next = line;
     d_next = d;
     data_next = data;
     rst_tick = 0;
 
     case (state)
         idle : begin
-            if (signal_latch == 1) begin
-                pin_next = 1'b0;
+            if (tx_ready_latch == 1) begin
+                line_next = 1'b0;
                 rst_tick = 1'b1;
                 state_next = start;
                 d_next = 0;
-                data_next = tx; //capture the data input
+                data_next = dout; //capture the data input
             end
         end 
         start : begin
             if (tick == 1) begin
-                pin_next = data[d];
+                line_next = data[d];
                 d_next = d + 1;
                 state_next = transmit;
             end
         end
         transmit : begin
             if (tick == 1) begin
-                pin_next = data[d];
+                line_next = data[d];
                 if (d == N-1) begin
                     state_next = stop;
                 end else begin
@@ -80,7 +81,7 @@ always @(*) begin
         end
         stop : begin
             if (tick == 1) begin
-                pin_next = 1'b1;
+                line_next = 1'b1;
                 state_next = idle;
             end
         end 

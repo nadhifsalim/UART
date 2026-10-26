@@ -1,8 +1,8 @@
-PROJECT      ?= uart_top
+PROJECT      ?= uart_fifo
 
 # FIX: Added all modules here so Make accurately tracks dependencies
-RTL_FILES    ?= $(PROJECT).v receiver.v transmitter.v counter.v
-TB_FILES     ?= $(PROJECT)_tb.v
+RTL_FILES    ?= $(PROJECT).v receiver.v transmitter.v counter.v fifo.v
+TB_FILES     ?= $(PROJECT)_tb.
 
 # FIX: Changed target to match the iCEsugar's exact hardware
 DEVICE       ?= up5k

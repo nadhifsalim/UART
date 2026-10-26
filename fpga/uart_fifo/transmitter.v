@@ -5,7 +5,8 @@ module transmitter
 (
     input wire clk, tx_ready,
     input wire [N-1:0] dout,
-    output reg line  = 1'b1
+    output reg line  = 1'b1,
+    output wire tx_busy
 );
 
 localparam idle = 2'd0;
@@ -36,6 +37,14 @@ reg [7:0] data_next;
 reg tx_ready_latch = 0;
 
 reg line_next;
+
+initial begin
+    state_next = idle;
+    d_next = 0;
+    data_next = 0;
+    line_next = 1'b1;
+    rst_tick = 0;
+end
 
 always @(posedge clk) begin
     line <= line_next;
@@ -88,4 +97,6 @@ always @(*) begin
     endcase    
 end
     
+assign tx_busy = (state != idle);
+
 endmodule

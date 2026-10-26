@@ -27,3 +27,4 @@ __pycache__/
 # Editor and OS generated files
 .vscode/
 .DS_Store
+fpga/uart/build/uart_top_sim
